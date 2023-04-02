@@ -10,7 +10,6 @@ class LicenseSerializer(serializers.ModelSerializer):
         model = License
         fields = '__all__'
     
-
 class InstructorSerializer(serializers.ModelSerializer):
     licenses = LicenseSerializer(many=True)
 
@@ -18,7 +17,6 @@ class InstructorSerializer(serializers.ModelSerializer):
         model = Instructor
         fields = '__all__'
         # read_only_fields = ['licenses']
-
 
     def create(self, validated_data):
         licenses_data = validated_data.pop('licenses')

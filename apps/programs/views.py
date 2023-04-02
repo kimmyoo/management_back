@@ -13,16 +13,11 @@ class allProgramsList(APIView):
         programs = Program.objects.all()
         # many=True: queryset contains mutiple items (a list of items) 
         # data is list instead of an object
-        data = ProgramSerializer(programs, many=True).data
-        return Response(data)
+        serializer = ProgramSerializer(programs, many=True)
+        return Response(serializer.data)
     
     def post(self, request, format=None):
         temp = request.data
-        # request.data.get() vs request.data.pop()
-        # in case optional field is empty
-        if request.data.get('expiresAt') == '':
-            temp['expiresAt'] = None
-
         serializer = ProgramSerializer(data=temp)
 
         if serializer.is_valid():

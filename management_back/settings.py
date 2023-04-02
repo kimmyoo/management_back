@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'apps.programs',
     'apps.instructors',
+    'apps.classes',
     'corsheaders',
 ]
 
