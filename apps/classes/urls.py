@@ -5,6 +5,7 @@ urlpatterns = [
     path('classes/', views.AllClassesList.as_view()),
     path('class/detail/<int:pk>', views.ClassDetail.as_view()),
     path('classes/in/program/<int:pk>/', views.ClassesInProgramList.as_view()),
+    path('tenclasses/in/allprograms/', views.TenClassesInProgramList.as_view()), 
     path('classes/takenby/student/<int:pk>/', views.ClassesTakenByStudent.as_view()),
     
     path('students/', views.AllStudentsList.as_view()),

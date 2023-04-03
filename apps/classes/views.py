@@ -7,6 +7,7 @@ from .serializers import ClassSerializer, StudentSerializer
 from rest_framework.response import Response
 from rest_framework import status
 from django.http import Http404
+from itertools import chain
 
 # # # # # # # # # # # # # # # # # # 
 #          all classes            #
@@ -116,7 +117,6 @@ class StudentsInClassList(APIView):
         serializer = StudentSerializer(students, many=True)
         return Response(serializer.data)
     
-    
 
 # # # # # # # # # # # # # # # # # # 
 #  classes taken by the student   #
@@ -137,9 +137,10 @@ class ClassesTakenByStudent(APIView):
         serializer = ClassSerializer(classes, many=True)
         return Response(serializer.data)
 
+
 # # # # # # # # # # # # # # # # # # 
 #  classes of the same program    #
-#                                 #
+#  Ten classes of each program    #
 # # # # # # # # # # # # # # # # # # 
 class ClassesInProgramList(APIView):
     def get(self, request, pk, format=None):
@@ -147,3 +148,20 @@ class ClassesInProgramList(APIView):
         classes = Class.objects.filter(program=pk).order_by('updatedAt', 'code')
         serializer = ClassSerializer(classes, many=True)
         return Response(serializer.data)
+
+
+class TenClassesInProgramList(APIView):
+    def get(self, request, format=None):
+        # this is how to initialize empty queryset of a model
+        classQuerySet = Class.objects.none()
+        programs = Program.objects.all()
+        if len(programs) > 0:
+            for program in programs:
+                tenClassesQuerySet = Class.objects.filter(program=program).order_by('-updatedAt')[:10]
+                # union method returns a new set, 
+                # but it doesn't change the current set(s). 
+                # You need to (re)assign the result
+                classQuerySet = classQuerySet|tenClassesQuerySet
+        serializer = ClassSerializer(classQuerySet, many=True)
+        return Response(serializer.data)
+
