@@ -4,11 +4,20 @@ from apps.programs.models import Program
 
 
 class LicenseSerializer(serializers.ModelSerializer):
-    # instructor = serializers.PrimaryKeyRelatedField(queryset=Instructor.objects.all())
-    
     class Meta:
         model = License
         fields = '__all__'
+
+    def to_representation(self, instance):
+        representation = dict()
+        representation["id"] = instance.id
+        representation["instructor"] = instance.instructor.id
+        representation["program"] = instance.program.id
+        representation['licNum'] = instance.licNum
+        representation["instructor_repr"] = instance.instructor.name
+        representation["program_repr"] = instance.program.programName
+        return representation
+
     
 class InstructorSerializer(serializers.ModelSerializer):
     licenses = LicenseSerializer(many=True)

@@ -20,7 +20,6 @@ class Class(models.Model):
     intSite = models.CharField(max_length=255, blank=True, null=True)
     note = models.TextField(blank=True, null=True)
     
-    
     def __str__(self):
         return self.code
     
@@ -31,7 +30,7 @@ class Class(models.Model):
         if self.status:
             self.status = self.status.lower()
         if self.intSite:
-            self.status = self.intSite.lower()
+            self.intSite = self.intSite.lower()
         if self.note:
             self.note = self.note.lower()
         return super(Class, self).save(*args, **kwargs)

@@ -73,3 +73,17 @@ class InstructorLicenseList(APIView):
         thisInstructorLicenses = allLicenses.filter(instructor__id=pk)
         serializer = LicenseSerializer(thisInstructorLicenses, many=True)
         return Response(serializer.data)
+    
+class LicenseDetail(APIView):
+        def get_object(self, pk):
+            try:
+                return License.objects.get(pk=pk)
+            except License.DoesNotExist:
+                raise Http404
+        
+        def get(self, request, pk, format=None):
+            license = self.get_object(pk)
+            serializer = LicenseSerializer(license)
+            return Response(serializer.data)
+
+

@@ -157,7 +157,7 @@ class TenClassesInProgramList(APIView):
         programs = Program.objects.all()
         if len(programs) > 0:
             for program in programs:
-                tenClassesQuerySet = Class.objects.filter(program=program).order_by('-updatedAt')[:10]
+                tenClassesQuerySet = Class.objects.filter(program=program).order_by('-updatedAt', '-createdAt')[:10]
                 # union method returns a new set, 
                 # but it doesn't change the current set(s). 
                 # You need to (re)assign the result
