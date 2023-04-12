@@ -7,7 +7,8 @@ from .serializers import ClassSerializer, StudentSerializer
 from rest_framework.response import Response
 from rest_framework import status
 from django.http import Http404
-from itertools import chain
+from datetime import datetime, timedelta, time 
+# from itertools import chain
 
 # # # # # # # # # # # # # # # # # # 
 #          all classes            #
@@ -68,7 +69,15 @@ class ClassDetail(APIView):
 # # # # # # # # # # # # # # # # # # 
 class AllStudentsList(APIView):
     def get(self, request, format=None):
-        students = Student.objects.all().order_by('id')
+        today = datetime.now().date()
+        tomorrow = today + timedelta(1)
+        today_start = datetime.combine(today, time())
+        today_end = datetime.combine(tomorrow, time())
+
+        # students with no class association and students updated today.
+        studentsNoClass = Student.objects.filter(classes=None).order_by('id')
+        studentsUpdatedToday = Student.objects.filter(updatedAt__lte=today_end, updatedAt__gte=today_start).order_by('updatedAt')
+        students = studentsUpdatedToday | studentsNoClass
         serializer = StudentSerializer(students, many=True)
         return Response(serializer.data)
     
@@ -80,9 +89,10 @@ class AllStudentsList(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 # # # # # # # # # # # # # # # # # # 
 #          student detail         #
-#                                 #
+#      get, put                   #
 # # # # # # # # # # # # # # # # # # 
 class StudentDetail(APIView):
     def get_object(self, pk):
@@ -96,6 +106,34 @@ class StudentDetail(APIView):
         serializer = StudentSerializer(student)
         return Response(serializer.data)
 
+    def put(self, request, pk, format=None):
+        student = self.get_object(pk)
+        # get the ids in a list
+        originalClassList = list (student.classes.all().values_list('id', flat=True))
+        requestClassList = request.data.pop('classes')
+        
+        # frontend added new class, requestedClassList is a string of class code
+        if not isinstance(requestClassList, list):
+            try:
+                clss = Class.objects.get(code=requestClassList)
+                student.classes.add(clss)
+            except Class.DoesNotExist:
+                raise Http404
+        # frontend deleted classes. 
+        elif len(requestClassList) < student.classes.count():
+            deletedIDs = list(set(originalClassList) - set(requestClassList))
+            try:
+                for id in deletedIDs:
+                    clss = Class.objects.get(id=id)
+                    student.classes.remove(clss)
+            except Class.DoesNotExist:
+                raise Http404
+        
+        serializer = StudentSerializer(student, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
 
 # # # # # # # # # # # # # # # # # # 
 #  Students in a class list       #

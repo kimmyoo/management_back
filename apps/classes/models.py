@@ -38,7 +38,7 @@ class Class(models.Model):
 
 # Create your models here.
 class Student(models.Model):
-    classes = models.ManyToManyField(Class, related_name="classes")
+    classes = models.ManyToManyField(Class, related_name="classes", blank=True)
     # required fields
     studentID = models.CharField(max_length=30, unique=True)
     dob = models.DateField(max_length=15)
