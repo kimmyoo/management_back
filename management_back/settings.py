@@ -30,7 +30,7 @@ ALLOWED_HOSTS = []
 # django-cors-header setting allowed origin
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
-    "http://192.168.0.247:3000"
+    "http://192.168.0.223:3000"
 ]
 
 # Application definition

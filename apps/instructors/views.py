@@ -73,6 +73,13 @@ class InstructorLicenseList(APIView):
         thisInstructorLicenses = allLicenses.filter(instructor__id=pk)
         serializer = LicenseSerializer(thisInstructorLicenses, many=True)
         return Response(serializer.data)
+
+# return all licenses that belong to a specific program
+class ProgramLicenseList(APIView):
+    def get(self, request, pk, format=None):
+        thisProgramLicenses = License.objects.filter(program__id=pk)
+        serializer = LicenseSerializer(thisProgramLicenses, many=True)
+        return Response(serializer.data)
     
 class LicenseDetail(APIView):
         def get_object(self, pk):

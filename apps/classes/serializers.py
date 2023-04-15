@@ -10,8 +10,6 @@ class StudentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Student
         fields = '__all__'
-
-
     # 
     def create(self, validated_data):
         classCodes = validated_data.pop('classes')
@@ -27,9 +25,24 @@ class StudentSerializer(serializers.ModelSerializer):
 
 
 class ClassSerializer(serializers.ModelSerializer):
-    # students = StudentSerializer()
-    # license = LicenseSerializer()
-    # program = ProgramSerializer()
+
     class Meta:
         model = Class
         fields = "__all__"
+
+    def to_representation(self, instance):
+        representation = dict()
+        representation["id"] = instance.id
+        representation["code"] = instance.code
+        representation["license"] = instance.license.id
+        representation["program"] = instance.program.id
+        representation['begin'] = instance.begin
+        representation['end'] = instance.end
+        representation['status'] = instance.status
+        representation['schedule'] = instance.schedule
+        representation['intBegin'] = instance.intBegin
+        representation['intEnd'] = instance.intEnd
+        representation['intSite'] = instance.intSite
+        representation['note'] = instance.note
+        representation["licNum_repr"] = instance.license.licNum
+        return representation

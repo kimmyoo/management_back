@@ -54,7 +54,8 @@ class ClassDetail(APIView):
         licInstance = License.objects.get(id=id)
         # print(licenseData['licNum'])
         # print(clss.license.licNum)
-        if id != clss.license:
+        
+        if id != clss.license.id:
             clss.license = licInstance
             clss.save()
         serializer = ClassSerializer(clss, data=request.data, partial=True)
@@ -74,10 +75,12 @@ class AllStudentsList(APIView):
         today_start = datetime.combine(today, time())
         today_end = datetime.combine(tomorrow, time())
 
-        # students with no class association and students updated today.
-        studentsNoClass = Student.objects.filter(classes=None).order_by('id')
-        studentsUpdatedToday = Student.objects.filter(updatedAt__lte=today_end, updatedAt__gte=today_start).order_by('updatedAt')
-        students = studentsUpdatedToday | studentsNoClass
+        # students with no class association and students updated today.  .order_by('id')  .order_by('updatedAt')
+        studentsNoClass = Student.objects.filter(classes=None)
+        studentsUpdatedToday = Student.objects.filter(updatedAt__lte=today_end, updatedAt__gte=today_start)
+        # print(studentsUpdatedToday)
+        # students = studentsUpdatedToday|studentsNoClass
+        students = studentsUpdatedToday.union(studentsNoClass)
         serializer = StudentSerializer(students, many=True)
         return Response(serializer.data)
     
@@ -135,6 +138,11 @@ class StudentDetail(APIView):
             return Response(serializer.data)
         return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
 
+    def delete(self, request, pk, format=None):
+        student = self.get_object(pk)
+        student.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    
 # # # # # # # # # # # # # # # # # # 
 #  Students in a class list       #
 #                                 #
@@ -183,7 +191,7 @@ class ClassesTakenByStudent(APIView):
 class ClassesInProgramList(APIView):
     def get(self, request, pk, format=None):
         # program = self.get_programObject(pk)
-        classes = Class.objects.filter(program=pk).order_by('updatedAt', 'code')
+        classes = Class.objects.filter(program=pk).order_by('-begin')
         serializer = ClassSerializer(classes, many=True)
         return Response(serializer.data)
 
@@ -195,7 +203,7 @@ class TenClassesInProgramList(APIView):
         programs = Program.objects.all()
         if len(programs) > 0:
             for program in programs:
-                tenClassesQuerySet = Class.objects.filter(program=program).order_by('-updatedAt', '-createdAt')[:10]
+                tenClassesQuerySet = Class.objects.filter(program=program).order_by('-createdAt')[:10]
                 # union method returns a new set, 
                 # but it doesn't change the current set(s). 
                 # You need to (re)assign the result

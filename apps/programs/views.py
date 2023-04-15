@@ -10,7 +10,7 @@ from .models import Program
 
 class allProgramsList(APIView):
     def get(self, request):
-        programs = Program.objects.all()
+        programs = Program.objects.all().order_by('programName')
         # many=True: queryset contains mutiple items (a list of items) 
         # data is list instead of an object
         serializer = ProgramSerializer(programs, many=True)
