@@ -7,9 +7,13 @@ from rest_framework import status
 # from apps.program import serializers
 from .models import Instructor, License
 from .serializers import InstructorSerializer, LicenseSerializer
+from users.utils.authentication import JWTAuthentication
+from rest_framework.decorators import authentication_classes
 
 
 
+
+@authentication_classes([JWTAuthentication])
 class AllInstructorsList(APIView):
     def get(self, requset, format=None):
         allInstructors = Instructor.objects.all().order_by('name')
@@ -24,6 +28,7 @@ class AllInstructorsList(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@authentication_classes([JWTAuthentication])
 class InstructorDetail(APIView):
     def get_object(self, pk):
         try:
@@ -51,6 +56,7 @@ class InstructorDetail(APIView):
 
 
 # return all licenses objects
+@authentication_classes([JWTAuthentication])
 class AllLicensesList(APIView):
     def get(self, request, format=None):
         allLicenses = License.objects.all().order_by('instructor__id')
@@ -67,6 +73,7 @@ class AllLicensesList(APIView):
 
 
 # return all licenses that belong to a specific instructor
+@authentication_classes([JWTAuthentication])
 class InstructorLicenseList(APIView):
     def get(self, request, pk, format=None):
         allLicenses = License.objects.all()
@@ -75,12 +82,14 @@ class InstructorLicenseList(APIView):
         return Response(serializer.data)
 
 # return all licenses that belong to a specific program
+@authentication_classes([JWTAuthentication])
 class ProgramLicenseList(APIView):
     def get(self, request, pk, format=None):
         thisProgramLicenses = License.objects.filter(program__id=pk)
         serializer = LicenseSerializer(thisProgramLicenses, many=True)
         return Response(serializer.data)
-    
+
+@authentication_classes([JWTAuthentication])
 class LicenseDetail(APIView):
         def get_object(self, pk):
             try:

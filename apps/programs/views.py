@@ -6,8 +6,11 @@ from django.http import Http404
 
 from .serializers import ProgramSerializer
 from .models import Program
+from users.utils.authentication import JWTAuthentication
+from rest_framework.decorators import authentication_classes
 
 
+@authentication_classes([JWTAuthentication])
 class allProgramsList(APIView):
     def get(self, request):
         programs = Program.objects.all().order_by('programName')
@@ -25,6 +28,7 @@ class allProgramsList(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+@authentication_classes([JWTAuthentication])
 class ProgramDetail(APIView):
     # by default get_object() method using self.kwargs["pk"] to search object.
     def get_object(self, pk):

@@ -8,12 +8,19 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.http import Http404
 from datetime import datetime, timedelta, time 
-# from itertools import chain
+from users.utils.authentication import JWTAuthentication
+from rest_framework.decorators import authentication_classes
+from rest_framework.permissions import IsAdminUser
+
+
+
+
 
 # # # # # # # # # # # # # # # # # # 
 #          all classes            #
 #                                 #
 # # # # # # # # # # # # # # # # # # 
+@authentication_classes([JWTAuthentication])
 class AllClassesList(APIView):
     def get(self, request, format=None):
         classes = Class.objects.all().order_by('license')
@@ -33,6 +40,7 @@ class AllClassesList(APIView):
 #          Class Detail           #
 #                                 #
 # # # # # # # # # # # # # # # # # # 
+@authentication_classes([JWTAuthentication])
 class ClassDetail(APIView):
     # by default get_object() method using self.kwargs["pk"] to search object.
     def get_object(self, pk):
@@ -68,6 +76,7 @@ class ClassDetail(APIView):
 #            all students         #
 #                                 #
 # # # # # # # # # # # # # # # # # # 
+@authentication_classes([JWTAuthentication])
 class AllStudentsList(APIView):
     def get(self, request, format=None):
         today = datetime.now().date()
@@ -97,6 +106,7 @@ class AllStudentsList(APIView):
 #          student detail         #
 #      get, put                   #
 # # # # # # # # # # # # # # # # # # 
+@authentication_classes([JWTAuthentication])
 class StudentDetail(APIView):
     def get_object(self, pk):
         try:
@@ -137,16 +147,18 @@ class StudentDetail(APIView):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
-
+    
     def delete(self, request, pk, format=None):
+        # if request.user.is_superuser:
         student = self.get_object(pk)
         student.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-    
+
 # # # # # # # # # # # # # # # # # # 
 #  Students in a class list       #
 #                                 #
 # # # # # # # # # # # # # # # # # # 
+@authentication_classes([JWTAuthentication])
 class StudentsInClassList(APIView):
     # when trying to get object from database, 
     # use try except block
@@ -168,6 +180,7 @@ class StudentsInClassList(APIView):
 #  classes taken by the student   #
 #                                 #
 # # # # # # # # # # # # # # # # # # 
+@authentication_classes([JWTAuthentication])
 class ClassesTakenByStudent(APIView):
     def get_studentObject(self, pk):
         try: 
@@ -188,6 +201,7 @@ class ClassesTakenByStudent(APIView):
 #  classes of the same program    #
 #  Ten classes of each program    #
 # # # # # # # # # # # # # # # # # # 
+@authentication_classes([JWTAuthentication])
 class ClassesInProgramList(APIView):
     def get(self, request, pk, format=None):
         # program = self.get_programObject(pk)
@@ -195,7 +209,7 @@ class ClassesInProgramList(APIView):
         serializer = ClassSerializer(classes, many=True)
         return Response(serializer.data)
 
-
+@authentication_classes([JWTAuthentication])
 class TenClassesInProgramList(APIView):
     def get(self, request, format=None):
         # this is how to initialize empty queryset of a model
