@@ -10,26 +10,27 @@ from .serializers import UserSerializer
 import jwt, datetime
 from dotenv import load_dotenv
 import os
-load_dotenv()
+# load_dotenv()
 
 # authentication
 from users.utils.authentication import JWTAuthentication
 from rest_framework.decorators import authentication_classes
 
 # Create your views here.
-class RegisterView(APIView):
-    def post(self, request):
-        serializer = UserSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data)
+# class RegisterView(APIView):
+#     def post(self, request):
+#         serializer = UserSerializer(data=request.data)
+#         serializer.is_valid(raise_exception=True)
+#         serializer.save()
+#         return Response(serializer.data)
 
 class LoginView(APIView):
     permission_classes = [AllowAny]
     # login is post request
     def post(self, request):
-        username = request.data['username']
-        password = request.data['password']
+        formData = request.data['formData']
+        username = formData['username']
+        password = formData['password']
         user = User.objects.filter(username=username).first()
         if user is None:
             raise AuthenticationFailed('User Not Found')
@@ -39,7 +40,7 @@ class LoginView(APIView):
         # JWT
         payload = {
             'userID': user.id,
-            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=3),
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=15),
             'iat': datetime.datetime.utcnow()
         }
         secret = os.environ.get('JWT_SECRET')
@@ -66,7 +67,8 @@ class UserView(APIView):
 class LogoutView(APIView):
     def post(self, request):
         response = Response()
-        response.delete_cookie('jwt')
+        response.set_cookie('jwt', expires=0, max_age=0, secure=True, samesite='none')
+        # response.delete_cookie('jwt') // this doesn't work
         response.data = {
             'message":"logged out'
         }

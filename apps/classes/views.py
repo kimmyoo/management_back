@@ -10,10 +10,7 @@ from django.http import Http404
 from datetime import datetime, timedelta, time 
 from users.utils.authentication import JWTAuthentication
 from rest_framework.decorators import authentication_classes
-from rest_framework.permissions import IsAdminUser
-
-
-
+# from rest_framework.permissions import IsAdminUser
 
 
 # # # # # # # # # # # # # # # # # # 
@@ -74,7 +71,7 @@ class ClassDetail(APIView):
 
 # # # # # # # # # # # # # # # # # # 
 #            all students         #
-#                                 #
+#     (recently updated students) #
 # # # # # # # # # # # # # # # # # # 
 @authentication_classes([JWTAuthentication])
 class AllStudentsList(APIView):
@@ -149,10 +146,13 @@ class StudentDetail(APIView):
         return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
     
     def delete(self, request, pk, format=None):
-        # if request.user.is_superuser:
-        student = self.get_object(pk)
-        student.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        if request.user.is_superuser:
+            student = self.get_object(pk)
+            student.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        else:
+            content = {"Permission": "reguler user cannot delete"}
+            return Response(content, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 # # # # # # # # # # # # # # # # # # 
 #  Students in a class list       #

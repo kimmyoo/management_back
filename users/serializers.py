@@ -5,6 +5,7 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'email', 'username', 'password', 'is_superuser']
+        # this ensures password is not returned as response
         extra_kwargs = {
             'password': {'write_only': True}
         }
@@ -13,6 +14,7 @@ class UserSerializer(serializers.ModelSerializer):
         password = validated_data.pop('password')
         user = self.Meta.model(**validated_data)
         if password is not  None:
+            # password will be hashed
             user.set_password(password)
         user.save()
         return user
