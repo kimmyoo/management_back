@@ -30,7 +30,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["abcschoolmanagement.pythonanywhere.com"]
 
 # django-cors-header setting allowed origin
 CORS_ALLOWED_ORIGINS = [
