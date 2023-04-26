@@ -9,7 +9,8 @@ from .models import Instructor, License
 from .serializers import InstructorSerializer, LicenseSerializer
 from users.utils.authentication import JWTAuthentication
 from rest_framework.decorators import authentication_classes
-
+# from rest_framework.decorators import permission_classes
+# from rest_framework.permissions import IsAdminUser
 
 
 
@@ -29,6 +30,7 @@ class AllInstructorsList(APIView):
 
 
 @authentication_classes([JWTAuthentication])
+# @permission_classes([IsAdminUser])
 class InstructorDetail(APIView):
     def get_object(self, pk):
         try:
@@ -41,6 +43,7 @@ class InstructorDetail(APIView):
         serializer = InstructorSerializer(instructor)
         return Response(serializer.data)
 
+    
     def put(self, request, pk, format=None):
         instructor = self.get_object(pk)
         licenses = request.data.pop('licenses') # licenses property was popped out. 

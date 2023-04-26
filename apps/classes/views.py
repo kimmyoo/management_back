@@ -1,15 +1,21 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
-from .models import Class, Student
+
 from apps.instructors.models import License
 from apps.programs.models import Program
+from .models import Class, Student
+
 from .serializers import ClassSerializer, StudentSerializer
 from rest_framework.response import Response
 from rest_framework import status
 from django.http import Http404
 from datetime import datetime, timedelta, time 
 from users.utils.authentication import JWTAuthentication
+
+from rest_framework.parsers import FileUploadParser
+import csv
 from rest_framework.decorators import authentication_classes
+
 # from rest_framework.permissions import IsAdminUser
 
 
@@ -85,7 +91,7 @@ class AllStudentsList(APIView):
         studentsNoClass = Student.objects.filter(classes=None)
         studentsUpdatedToday = Student.objects.filter(updatedAt__lte=today_end, updatedAt__gte=today_start)
         # print(studentsUpdatedToday)
-        # students = studentsUpdatedToday|studentsNoClass
+        # students = studentsUpdatedToday|studentsNoClass # this way has duplicate
         students = studentsUpdatedToday.union(studentsNoClass)
         serializer = StudentSerializer(students, many=True)
         return Response(serializer.data)
@@ -98,7 +104,105 @@ class AllStudentsList(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+@authentication_classes([JWTAuthentication])
+class ImportStudents(APIView):
+    def post (self, request, format=None):
+        csv_file = request.FILES['file']
+        # Verify that the uploaded file is a CSV file
+        if not csv_file.name.endswith('.csv'):
+            return Response({'error': 'File must be a CSV file.'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        # Parse the CSV file
+        try:
+            decoded_file = csv_file.read().decode('utf-8-sig').splitlines()
+            reader = csv.DictReader(decoded_file)
+        except csv.Error as e:
+            return Response({'error': 'Error reading CSV file: ' + str(e)},
+                            status=status.HTTP_400_BAD_REQUEST)
+        # for holding importing result and return this dict to response
+        result = {"created":[], "updated":[], "failed":[]}
+        # initialize a dict full of existing students instances
+        existing_students = {}
+        for student in Student.objects.all():
+            existing_students[student.studentID] = student
+        # Save each student record to the database
+        for row in reader:
+            class_code = row.get('classes')
+            student_id = row.get('studentID')
+            # print(class_code, studentID)
+            # first check if the class exists or not
+            try:
+                clss = Class.objects.get(code=class_code)
+            except Class.DoesNotExist:
+                result['failed'].append("{}: class doesn't exist".format(student_id))
+                # raise Http404
+                continue
+            # print("reached here")
+            # using a dict to check existing student 
+            # is way faster than performing try except block on each row.  
+            if (student_id in existing_students) \
+                and (existing_students[student_id].lName == row.get('lName'))\
+                and (existing_students[student_id].fName == row.get('fName'))\
+                and (existing_students[student_id].dob.strftime('%Y-%m-%d') == row.get('dob')):
+                # comparing date type with string type doesn't work
+                # remember to convert date type to string format. 
+                
+                # print("reached here")
+                # Update existing student
+                existing_student = existing_students[student_id]
+                if existing_student.phone != row.get('phone'):
+                    existing_student.phone = row.get('phone')
+                if existing_student.address != row.get('address'):
+                    existing_student.address = row.get('address')
+                if row.get('accountInfo'):
+                    existing_student.accountInfo = row.get('accountInfo')
+                if existing_student.note:
+                    existing_student.note = existing_student.note + " ;" + row.get('note')
+                else:
+                    existing_student.note = row.get('note')
+                existing_student.classes.add(clss)
+                existing_student.save()
+                result['updated'].append(existing_student.studentID)
+            else:
+                # Create new student record
+                serializer = StudentSerializer(data=row)
+                # once data is passed to serializer, 
+                # you cannot access data anymore 
+                # use initial_data which is a dict
+                serializer.initial_data['classes'] = [clss.id]
+                if serializer.is_valid():
+                    serializer.save()
+                    result['created'].append(student_id)
+                else:
+                    print(student_id)
+                    result['failed'].append("{}: SerializerError".format(student_id))
+                    continue
+                    # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(result, status=status.HTTP_201_CREATED)
 
+
+@authentication_classes([JWTAuthentication])
+class SearchStudents(APIView):
+    def post(self, request, format=None):
+        prop = request.data['prop']
+        term = request.data['term']
+        students = Student.objects.all()
+        res = Student.objects.none()
+        match prop:
+            case "last4Digits":
+                res = students.filter(last4Digits=term).order_by('lName')
+            case "dob":
+                res = students.filter(dob=term).order_by('lName')
+            case "lName":
+                res = students.filter(lName__contains=term).order_by('lName')
+            case "fName":
+                res = students.filter(fName__contains=term).order_by('lName')
+            case "note":
+                res = students.filter(note__contains=term).order_by('lName')
+
+        serializer = StudentSerializer(res, many=True)
+        return Response(serializer.data)
+ 
 # # # # # # # # # # # # # # # # # # 
 #          student detail         #
 #      get, put                   #

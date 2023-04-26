@@ -10,5 +10,8 @@ urlpatterns = [
     
     path('students/', views.AllStudentsList.as_view()),
     path('student/detail/<int:pk>', views.StudentDetail.as_view()), 
-    path('students/in/class/<int:pk>/', views.StudentsInClassList.as_view()),   
+    path('students/in/class/<int:pk>/', views.StudentsInClassList.as_view()),
+    path('students/search/', views.SearchStudents.as_view()), 
+
+    path('students/import/', views.ImportStudents.as_view())
 ]

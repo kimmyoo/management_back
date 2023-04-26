@@ -40,7 +40,7 @@ class LoginView(APIView):
         # JWT
         payload = {
             'userID': user.id,
-            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=15),
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=60),
             'iat': datetime.datetime.utcnow()
         }
         secret = os.environ.get('JWT_SECRET')
