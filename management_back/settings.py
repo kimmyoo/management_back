@@ -35,7 +35,7 @@ ALLOWED_HOSTS = ["abcschoolmanagement.pythonanywhere.com"]
 # django-cors-header setting allowed origin
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
-    "http://192.168.0.223:3000"
+    "http://vocabnexus.com"
 ]
 
 # # if this is not set to True, frontend wont get cookies.
