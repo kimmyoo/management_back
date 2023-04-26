@@ -28,14 +28,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ["abcschoolmanagement.pythonanywhere.com"]
 
 # django-cors-header setting allowed origin
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
-    "http://vocabnexus.com"
+    "https://vocabnexus.com"
 ]
 
 # # if this is not set to True, frontend wont get cookies.
