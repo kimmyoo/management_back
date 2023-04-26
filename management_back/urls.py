@@ -29,6 +29,6 @@ urlpatterns = [
 ]
 
 
-# for pythonanywhere deployment
+# for pythonanywhere deployment for static dir
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
