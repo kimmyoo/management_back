@@ -50,7 +50,7 @@ class LoginView(APIView):
             key='jwt', 
             value=token, 
             httponly=True, 
-            samesite='Lax',  # set this samesite abd secure
+            samesite='None',  # set this samesite abd secure
             secure="Secure"  # otherwise the cookie won't be set in browser
         )
         response.data = {'jwt': token}
