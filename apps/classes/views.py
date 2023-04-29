@@ -93,6 +93,7 @@ class AllStudentsList(APIView):
         # print(studentsUpdatedToday)
         # students = studentsUpdatedToday|studentsNoClass # this way has duplicate
         students = studentsUpdatedToday.union(studentsNoClass)
+        students = students[:15]
         serializer = StudentSerializer(students, many=True)
         return Response(serializer.data)
     
@@ -141,14 +142,13 @@ class ImportStudents(APIView):
             # using a dict to check existing student 
             # is way faster than performing try except block on each row.  
             if (student_id in existing_students) \
-                and (existing_students[student_id].lName == row.get('lName'))\
-                and (existing_students[student_id].fName == row.get('fName'))\
+                and (existing_students[student_id].lName == row.get('lName').lower())\
+                and (existing_students[student_id].fName == row.get('fName').lower())\
                 and (existing_students[student_id].dob.strftime('%Y-%m-%d') == row.get('dob')):
                 # comparing date type with string type doesn't work
                 # remember to convert date type to string format. 
-                
-                # print("reached here")
-                # Update existing student
+                # also remember to lower() user input in case csv file data is not normalized
+                # Updating existing student
                 existing_student = existing_students[student_id]
                 if existing_student.phone != row.get('phone'):
                     existing_student.phone = row.get('phone')
