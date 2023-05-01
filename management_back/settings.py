@@ -28,7 +28,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ["abcschoolmanagement.pythonanywhere.com", "127.0.0.1"]
 
@@ -44,7 +44,7 @@ CORS_ALLOW_CREDENTIALS = True
 # CORS_ORIGIN_ALLOW_ALL = True
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
-SECURE_SSL_REDIRECT = True # set this to False for local dev
+# SECURE_SSL_REDIRECT = True # set this to False for local dev
 
 INSTALLED_APPS = [
     'django.contrib.admin',

@@ -156,10 +156,12 @@ class ImportStudents(APIView):
                     existing_student.address = row.get('address')
                 if row.get('accountInfo'):
                     existing_student.accountInfo = row.get('accountInfo')
-                if existing_student.note:
-                    existing_student.note = existing_student.note + " ;" + row.get('note')
-                else:
-                    existing_student.note = row.get('note')
+                
+                if row.get('note') != "":
+                    if existing_student.note:
+                        existing_student.note = existing_student.note + " ;" + row.get('note')
+                    else:
+                        existing_student.note = row.get('note')
                 existing_student.classes.add(clss)
                 existing_student.save()
                 result['updated'].append(existing_student.studentID)
