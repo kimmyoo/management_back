@@ -65,7 +65,6 @@ class ClassDetail(APIView):
         licInstance = License.objects.get(id=id)
         # print(licenseData['licNum'])
         # print(clss.license.licNum)
-        
         if id != clss.license.id:
             clss.license = licInstance
             clss.save()
@@ -86,7 +85,6 @@ class AllStudentsList(APIView):
         tomorrow = today + timedelta(1)
         today_start = datetime.combine(today, time())
         today_end = datetime.combine(tomorrow, time())
-
         # students with no class association and students updated today.  .order_by('id')  .order_by('updatedAt')
         studentsNoClass = Student.objects.filter(classes=None)
         studentsUpdatedToday = Student.objects.filter(updatedAt__lte=today_end, updatedAt__gte=today_start)
@@ -159,7 +157,7 @@ class ImportStudents(APIView):
                 
                 if row.get('note') != "":
                     if existing_student.note:
-                        existing_student.note = existing_student.note + " ;" + row.get('note')
+                        existing_student.note = existing_student.note + "; " + row.get('note')
                     else:
                         existing_student.note = row.get('note')
                 existing_student.classes.add(clss)

@@ -41,7 +41,6 @@ CORS_ALLOWED_ORIGINS = [
 # # if this is not set to True, frontend wont get cookies.
 # it enables returning response from back to front with cookies
 CORS_ALLOW_CREDENTIALS = True
-# CORS_ORIGIN_ALLOW_ALL = True
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
 # SECURE_SSL_REDIRECT = True # set this to False for local dev
