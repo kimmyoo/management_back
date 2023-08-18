@@ -28,14 +28,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ["abcschoolmanagement.pythonanywhere.com", "127.0.0.1"]
 
 # django-cors-header setting allowed origin
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "https://vocabnexus.com"
+    # "http://localhost:3000",
+    # "https://vocabnexus.com",
+    "https://courageous-selkie-e1284c.netlify.app"
 ]
 
 # # if this is not set to True, frontend wont get cookies.
@@ -43,7 +44,7 @@ CORS_ALLOWED_ORIGINS = [
 CORS_ALLOW_CREDENTIALS = True
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
-# SECURE_SSL_REDIRECT = True # set this to False for local dev
+SECURE_SSL_REDIRECT = True # set this to False for local dev
 
 INSTALLED_APPS = [
     'django.contrib.admin',
