@@ -36,7 +36,7 @@ ALLOWED_HOSTS = ["abcschoolmanagement.pythonanywhere.com", "127.0.0.1"]
 CORS_ALLOWED_ORIGINS = [
     # "http://localhost:3000",
     # "https://vocabnexus.com",
-    "https://courageous-selkie-e1284c.netlify.app"
+    "https://schoolmanagement-ap90.onrender.com"
 ]
 
 # # if this is not set to True, frontend wont get cookies.
